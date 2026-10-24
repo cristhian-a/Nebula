@@ -16,7 +16,7 @@ public final class ProofOfWork {
             Block candidate = new Block(
                     block.index(),
                     block.timestamp(),
-                    block.data(),
+                    block.transactions(),
                     block.previousHash(),
                     nonce,
                     null

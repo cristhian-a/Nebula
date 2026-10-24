@@ -16,11 +16,12 @@ public final class Blockchain {
             throw new IllegalArgumentException("Invalid difficulty");
 
         this.difficulty = difficulty;
+        Transaction t = new Transaction("Adam", "Eve", 1L);
 
         Block genesis = new Block(
                 0,
                 System.currentTimeMillis(),
-                "Genesis Block",
+                List.of(t),
                 GENESIS_PREVIOUS_HASH,
                 0,
                 null
@@ -29,13 +30,13 @@ public final class Blockchain {
         blocks.add(ProofOfWork.mine(genesis, difficulty));
     }
 
-    public Block addBlock(String data) {
+    public Block addBlock(List<Transaction> transactions) {
         Block previous = blocks.getLast();
 
         Block candidate = new Block(
                 previous.index() + 1,
                 System.currentTimeMillis(),
-                data,
+                transactions,
                 previous.hash(),
                 0,
                 null

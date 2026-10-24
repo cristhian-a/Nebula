@@ -7,13 +7,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.List;
 
 public final class Hashing {
 
     private Hashing() {
     }
 
-    public static String calculateHash(int index, long timestamp, String data, String previousHash, long nonce) {
+    public static String calculateHash(int index, long timestamp, List<Transaction> transactions, String previousHash, long nonce) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -21,9 +22,11 @@ public final class Hashing {
                 output.writeInt(index);
                 output.writeLong(timestamp);
 
-                byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-                output.writeInt(dataBytes.length);
-                output.write(dataBytes);
+                output.writeInt(transactions.size());
+
+                for (var t : transactions) {
+                    writeTransaction(output, t);
+                }
 
                 byte[] previousHashBytes = previousHash.getBytes(StandardCharsets.UTF_8);
                 output.writeInt(previousHashBytes.length);
@@ -46,5 +49,18 @@ public final class Hashing {
                     "SHA-256 is not available.", ex
             );
         }
+    }
+
+    private static void writeTransaction(DataOutputStream output, Transaction transaction) throws IOException {
+        byte[] senderBytes = transaction.sender().getBytes(StandardCharsets.UTF_8);
+        output.writeInt(senderBytes.length);
+        output.write(senderBytes);
+
+        byte[] recipientBytes = transaction.recipient().getBytes(StandardCharsets.UTF_8);
+        output.writeInt(recipientBytes.length);
+        output.write(recipientBytes);
+
+        output.writeLong(transaction.amount());
+        output.writeLong(transaction.timestamp());
     }
 }
