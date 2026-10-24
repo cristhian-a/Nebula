@@ -9,30 +9,42 @@ public final class Blockchain {
     private static final String GENESIS_PREVIOUS_HASH = "0";
 
     private final List<Block> blocks = new ArrayList<>();
+    private final int difficulty;
 
-    public Blockchain() {
+    public Blockchain(int difficulty) {
+        if (difficulty < 0 || difficulty > 64)
+            throw new IllegalArgumentException("Invalid difficulty");
+
+        this.difficulty = difficulty;
+
         Block genesis = new Block(
                 0,
                 System.currentTimeMillis(),
                 "Genesis Block",
-                GENESIS_PREVIOUS_HASH
+                GENESIS_PREVIOUS_HASH,
+                0,
+                null
         );
 
-        blocks.add(genesis);
+        blocks.add(ProofOfWork.mine(genesis, difficulty));
     }
 
     public Block addBlock(String data) {
         Block previous = blocks.getLast();
 
-        Block block = new Block(
+        Block candidate = new Block(
                 previous.index() + 1,
                 System.currentTimeMillis(),
                 data,
-                previous.hash()
+                previous.hash(),
+                0,
+                null
         );
 
-        blocks.add(block);
-        return block;
+        Block mined = ProofOfWork.mine(candidate, difficulty);
+        blocks.add(mined);
+
+        return mined;
     }
 
     public List<Block> getBlocks() {
@@ -40,10 +52,10 @@ public final class Blockchain {
     }
 
     public boolean isValid() {
-        return isValid(blocks);
+        return isValid(blocks, difficulty);
     }
 
-    static boolean isValid(List<Block> candidateBlocks) {
+    static boolean isValid(List<Block> candidateBlocks, int difficulty) {
         if (candidateBlocks == null || candidateBlocks.isEmpty())
             return false;
 
@@ -55,9 +67,14 @@ public final class Blockchain {
         for (int i = 0; i < candidateBlocks.size(); i++) {
             Block current = candidateBlocks.get(i);
 
-            if (!current.hash().equals(current.calculateHash())) return false;
+            if (!current.hash().equals(current.calculateHash()))
+                return false;
 
-            if (current.index() != i) return false;
+            if (current.index() != i)
+                return false;
+
+            if (!ProofOfWork.isValid(current, difficulty))
+                return false;
 
             if (i > 0) {
                 Block previous = candidateBlocks.get(i - 1);

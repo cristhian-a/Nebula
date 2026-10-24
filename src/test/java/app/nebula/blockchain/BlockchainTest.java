@@ -11,14 +11,14 @@ final class BlockchainTest {
 
     @Test
     void newBlockchainShouldBeValid() {
-        Blockchain blockchain = new Blockchain();
+        Blockchain blockchain = new Blockchain(4);
 
         assertTrue(blockchain.isValid());
     }
 
     @Test
     void addingBlocksShouldPreserveValidity() {
-        Blockchain blockchain = new Blockchain();
+        Blockchain blockchain = new Blockchain(4);
 
         blockchain.addBlock("First block");
         blockchain.addBlock("Second block");
@@ -29,7 +29,8 @@ final class BlockchainTest {
 
     @Test
     void modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain() {
-        Blockchain blockchain = new Blockchain();
+        final int DIFFICULTY = 4;
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
 
         blockchain.addBlock("Original data");
         blockchain.addBlock("Another block");
@@ -44,12 +45,13 @@ final class BlockchainTest {
                 original.timestamp(),
                 "Tampered data",
                 original.previousHash(),
+                original.nonce(),
                 original.hash()
         );
 
         tamperedBlocks.set(1, tampered);
 
-        assertFalse(Blockchain.isValid(tamperedBlocks));
+        assertFalse(Blockchain.isValid(tamperedBlocks, DIFFICULTY));
         assertTrue(blockchain.isValid());
     }
 }

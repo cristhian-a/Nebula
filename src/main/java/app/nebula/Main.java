@@ -6,10 +6,14 @@ import app.nebula.blockchain.Blockchain;
 public class Main {
 
     static void main() {
-        Blockchain blockchain = new Blockchain();
+        Blockchain blockchain = new Blockchain(5);
 
-        blockchain.addBlock("Alice sends Bob 10 coins");
-        blockchain.addBlock("Bob sends Carol 3 coins");
+        var block1 = blockchain.addBlock("Alice sends Bob 10 coins");
+        IO.println("Block mined: " + block1.toString());
+
+        var block2 = blockchain.addBlock("Bob sends Carol 3 coins");
+        IO.println("Block mined: " + block2.toString());
+        IO.println();
 
         for (Block block : blockchain.getBlocks()) {
             IO.println(block);

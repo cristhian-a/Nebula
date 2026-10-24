@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0a3d0c3f-a8ff-4547-a45d-726646b72dac" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/ProofOfWork.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Block.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Blockchain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Blockchain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Hashing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Hashing.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/BlockchainTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/BlockchainTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0794281511745095E-46" />
+      <entry key="MS500" value="1.4066716315478903E-9" />
+      <entry key="S2" value="0.020874112459760983" />
+      <entry key="S5" value="0.6694083795627594" />
+      <entry key="S10" value="2.3484416327495468" />
+      <entry key="S30" value="6.642272864824721" />
+      <entry key="S60" value="9.335265154656618" />
+      <entry key="M2" value="11.322786052715479" />
+      <entry key="M5" value="12.83380535241263" />
+      <entry key="M10" value="13.654887128744747" />
+      <entry key="M15" value="14.55635806185155" />
+      <entry key="M30" value="17.51910186528136" />
+      <entry key="H1" value="26.674608455086926" />
+      <entry key="H2" value="72.81471826633712" />
+      <entry key="H4" value="171.5745100953438" />
+      <entry key="D1" value="392.6727605180263" />
+      <entry key="W1" value="455.52111856405566" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000200227547393" />
+      <entry key="S2" value="1.0669023765924937" />
+      <entry key="S5" value="1.3584013722793575" />
+      <entry key="S10" value="1.915920400909499" />
+      <entry key="S30" value="4.431297317384134" />
+      <entry key="S60" value="6.413535387846072" />
+      <entry key="M2" value="7.9336234135462735" />
+      <entry key="M5" value="9.102744225249802" />
+      <entry key="M10" value="9.85517104621116" />
+      <entry key="M15" value="10.828528600116812" />
+      <entry key="M30" value="14.009529403561322" />
+      <entry key="H1" value="21.38320515201638" />
+      <entry key="H2" value="52.08980722641925" />
+      <entry key="H4" value="116.79383317848576" />
+      <entry key="D1" value="262.6646729953446" />
+      <entry key="W1" value="304.3724571401206" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.014377932041013671" />
+      <entry key="MS500" value="0.42810369397008613" />
+      <entry key="S2" value="0.8838894102864472" />
+      <entry key="S5" value="1.8928509135508818" />
+      <entry key="S10" value="4.125766707156779" />
+      <entry key="S30" value="10.934780528065861" />
+      <entry key="S60" value="15.645559301248916" />
+      <entry key="M2" value="19.19214568376232" />
+      <entry key="M5" value="21.907015734618803" />
+      <entry key="M10" value="23.494148575701594" />
+      <entry key="M15" value="25.37334761125688" />
+      <entry key="M30" value="31.52132460078819" />
+      <entry key="H1" value="48.05213818959137" />
+      <entry key="H2" value="124.896941503485" />
+      <entry key="H4" value="288.3593875056456" />
+      <entry key="D1" value="655.3339701575127" />
+      <entry key="W1" value="759.8929999118942" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3L75Mk8bIHtQHUvWrZoY7jWZuy8" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "JUnit.BlockchainTest.executor": "Run",
+    "JUnit.BlockchainTest.modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain.executor": "Run",
+    "Maven.nebula [install].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/User/IdeaProjects/nebula",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="app.nebula.Main" />
+      <module name="nebula" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="app.nebula.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BlockchainTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nebula" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="app.nebula.blockchain.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="app.nebula.blockchain" />
+      <option name="MAIN_CLASS_NAME" value="app.nebula.blockchain.BlockchainTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BlockchainTest.modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="nebula" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="app.nebula.blockchain.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="app.nebula.blockchain" />
+      <option name="MAIN_CLASS_NAME" value="app.nebula.blockchain.BlockchainTest" />
+      <option name="METHOD_NAME" value="modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="JUnit.BlockchainTest" />
+        <item itemvalue="JUnit.BlockchainTest.modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-ac68fc9d2b05-intellij.indexing.shared.core-IU-263.7307.44" />
+        <option value="bundled-js-predefined-d6986cc7102b-56aff7b04f6f-JavaScript-IU-263.7307.44" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0a3d0c3f-a8ff-4547-a45d-726646b72dac" name="Changes" comment="" />
+      <created>1792798648298</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1792798648298</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

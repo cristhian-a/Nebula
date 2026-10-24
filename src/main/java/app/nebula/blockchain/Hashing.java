@@ -13,7 +13,7 @@ public final class Hashing {
     private Hashing() {
     }
 
-    public static String calculateHash(int index, long timestamp, String data, String previousHash) {
+    public static String calculateHash(int index, long timestamp, String data, String previousHash, long nonce) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -28,6 +28,8 @@ public final class Hashing {
                 byte[] previousHashBytes = previousHash.getBytes(StandardCharsets.UTF_8);
                 output.writeInt(previousHashBytes.length);
                 output.write(previousHashBytes);
+
+                output.writeLong(nonce);
             }
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
