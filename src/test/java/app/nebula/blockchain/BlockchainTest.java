@@ -24,13 +24,17 @@ final class BlockchainTest {
     void addingBlocksShouldPreserveValidity() {
         Blockchain blockchain = new Blockchain(DIFFICULTY);
 
+        Wallet alice = new Wallet();
+        Wallet bob = new Wallet();
+        Wallet carol = new Wallet();
+
         blockchain.addBlock(List.of(
-                new Transaction("Alice", "Bob", 10)
+                sign(alice, bob, 10, 1_000L)
         ));
 
         blockchain.addBlock(List.of(
-                new Transaction("Bob", "Carol", 3),
-                new Transaction("Alice", "Carol", 5)
+                sign(bob, carol, 3, 2_000L),
+                sign(alice, carol, 5, 3_000L)
         ));
 
         assertEquals(3, blockchain.getBlocks().size());
@@ -38,25 +42,48 @@ final class BlockchainTest {
     }
 
     @Test
+    void addingBlockWithUnsignedTransactionShouldBeRejected() {
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+
+        Wallet alice = new Wallet();
+        Wallet bob = new Wallet();
+
+        Transaction unsigned = unsignedTransaction(
+                alice.getAddress(), bob.getAddress(), 10, 1_000L
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> blockchain.addBlock(List.of(unsigned))
+        );
+
+        assertEquals(1, blockchain.getBlocks().size());
+        assertTrue(blockchain.isValid());
+    }
+
+    @Test
     void modifyingTransactionWithoutUpdatingHashShouldInvalidateChain() {
         Blockchain blockchain = new Blockchain(DIFFICULTY);
 
-        blockchain.addBlock(List.of(
-                new Transaction("Alice", "Bob", 10)
-        ));
+        Wallet alice = new Wallet();
+        Wallet bob = new Wallet();
+
+        Transaction signed = sign(alice, bob, 10, 1_000L);
+        blockchain.addBlock(List.of(signed));
 
         List<Block> tamperedBlocks =
                 new ArrayList<>(blockchain.getBlocks());
 
         Block original = tamperedBlocks.get(1);
 
-        Transaction tamperedTransaction =
-                new Transaction(
-                        "Alice",
-                        "Bob",
-                        999,
-                        original.transactions().getFirst().timestamp()
-                );
+        Transaction tamperedTransaction = new Transaction(
+                signed.sender(),
+                signed.recipient(),
+                999,
+                signed.timestamp(),
+                signed.senderPublicKey(),
+                signed.signature()
+        );
 
         Block tampered = new Block(
                 original.index(),
@@ -74,12 +101,59 @@ final class BlockchainTest {
     }
 
     @Test
-    void changingTransactionShouldChangeBlockHash() {
-        Transaction original =
-                new Transaction("Alice", "Bob", 10, 1_000L);
+    void recalculatedAndReminedBlockWithInvalidSignatureShouldBeRejected() {
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
 
-        Transaction modified =
-                new Transaction("Alice", "Bob", 11, 1_000L);
+        Wallet alice = new Wallet();
+        Wallet bob = new Wallet();
+        Wallet carol = new Wallet();
+
+        Transaction signed = sign(alice, bob, 10, 1_000L);
+        blockchain.addBlock(List.of(signed));
+
+        List<Block> tamperedBlocks =
+                new ArrayList<>(blockchain.getBlocks());
+
+        Block original = tamperedBlocks.get(1);
+
+        // Change the recipient but keep the original signature.
+        Transaction tamperedTransaction = new Transaction(
+                signed.sender(),
+                carol.getAddress(),
+                signed.amount(),
+                signed.timestamp(),
+                signed.senderPublicKey(),
+                signed.signature()
+        );
+
+        // Recalculate the hash, then mine the modified block.
+        Block candidate = new Block(
+                original.index(),
+                original.timestamp(),
+                List.of(tamperedTransaction),
+                original.previousHash(),
+                0,
+                null
+        );
+
+        Block remined = ProofOfWork.mine(candidate, DIFFICULTY);
+        tamperedBlocks.set(1, remined);
+
+        // Valid proof of work cannot make an invalid signature valid.
+        assertTrue(ProofOfWork.isValid(remined, DIFFICULTY));
+        assertFalse(Blockchain.isValid(tamperedBlocks, DIFFICULTY));
+        assertTrue(blockchain.isValid());
+    }
+
+    @Test
+    void changingTransactionShouldChangeBlockHash() {
+        Transaction original = unsignedTransaction(
+                "Alice", "Bob", 10, 1_000L
+        );
+
+        Transaction modified = unsignedTransaction(
+                "Alice", "Bob", 11, 1_000L
+        );
 
         Block originalBlock = createBlock(List.of(original));
         Block modifiedBlock = createBlock(List.of(modified));
@@ -89,11 +163,13 @@ final class BlockchainTest {
 
     @Test
     void reorderingTransactionsShouldChangeBlockHash() {
-        Transaction first =
-                new Transaction("Alice", "Bob", 10, 1_000L);
+        Transaction first = unsignedTransaction(
+                "Alice", "Bob", 10, 1_000L
+        );
 
-        Transaction second =
-                new Transaction("Bob", "Carol", 5, 2_000L);
+        Transaction second = unsignedTransaction(
+                "Bob", "Carol", 5, 2_000L
+        );
 
         Block originalBlock = createBlock(List.of(first, second));
         Block reorderedBlock = createBlock(List.of(second, first));
@@ -102,31 +178,61 @@ final class BlockchainTest {
     }
 
     @Test
+    void changingSignatureShouldChangeBlockHash() {
+        Wallet alice = new Wallet();
+        Wallet bob = new Wallet();
+
+        Transaction signed = sign(alice, bob, 10, 1_000L);
+
+        byte[] modifiedSignature = signed.signature();
+        modifiedSignature[0] ^= 1;
+
+        Transaction modified = new Transaction(
+                signed.sender(),
+                signed.recipient(),
+                signed.amount(),
+                signed.timestamp(),
+                signed.senderPublicKey(),
+                modifiedSignature
+        );
+
+        Block originalBlock = createBlock(List.of(signed));
+        Block modifiedBlock = createBlock(List.of(modified));
+
+        assertNotEquals(originalBlock.hash(), modifiedBlock.hash());
+        assertFalse(modified.verifySignature());
+    }
+
+    @Test
     void blockShouldNotBeAffectedByChangesToOriginalTransactionList() {
         List<Transaction> transactions = new ArrayList<>();
 
-        transactions.add(new Transaction("Alice", "Bob", 10, 1_000L));
+        transactions.add(unsignedTransaction(
+                "Alice", "Bob", 10, 1_000L
+        ));
 
         Block block = createBlock(transactions);
         String originalHash = block.hash();
 
-        transactions.add(new Transaction("Bob", "Carol", 5, 2_000L));
+        transactions.add(unsignedTransaction(
+                "Bob", "Carol", 5, 2_000L
+        ));
 
         assertEquals(1, block.transactions().size());
         assertEquals(originalHash, block.hash());
-        assertTrue(block.hash().equals(block.calculateHash()));
+        assertEquals(block.hash(), block.calculateHash());
     }
 
     @Test
     void blockTransactionListShouldBeImmutable() {
         Block block = createBlock(List.of(
-                new Transaction("Alice", "Bob", 10, 1_000L)
+                unsignedTransaction("Alice", "Bob", 10, 1_000L)
         ));
 
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> block.transactions().add(
-                        new Transaction("Bob", "Carol", 5, 2_000L)
+                        unsignedTransaction("Bob", "Carol", 5, 2_000L)
                 )
         );
     }
@@ -134,19 +240,49 @@ final class BlockchainTest {
     @Test
     void blockWithRecalculatedHashButInsufficientProofOfWorkShouldBeInvalid() {
         Block original = createBlock(List.of(
-                new Transaction("Alice", "Bob", 10, 1_000L)
+                unsignedTransaction("Alice", "Bob", 10, 1_000L)
         ));
 
         Block recalculated = new Block(
                 original.index(),
                 original.timestamp(),
-                List.of(new Transaction("Alice", "Bob", 999, 1_000L)),
+                List.of(unsignedTransaction("Alice", "Bob", 999, 1_000L)),
                 original.previousHash(),
                 original.nonce(),
                 null
         );
 
         assertFalse(ProofOfWork.isValid(recalculated, 64));
+    }
+
+    private static Transaction sign(
+            Wallet sender,
+            Wallet recipient,
+            long amount,
+            long timestamp
+    ) {
+        return sender.sign(unsignedTransaction(
+                sender.getAddress(),
+                recipient.getAddress(),
+                amount,
+                timestamp
+        ));
+    }
+
+    private static Transaction unsignedTransaction(
+            String sender,
+            String recipient,
+            long amount,
+            long timestamp
+    ) {
+        return new Transaction(
+                sender,
+                recipient,
+                amount,
+                timestamp,
+                null,
+                null
+        );
     }
 
     private static Block createBlock(List<Transaction> transactions) {

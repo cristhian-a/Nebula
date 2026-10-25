@@ -3,6 +3,7 @@ package app.nebula.blockchain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public final class Blockchain {
 
@@ -16,12 +17,15 @@ public final class Blockchain {
             throw new IllegalArgumentException("Invalid difficulty");
 
         this.difficulty = difficulty;
-        Transaction t = new Transaction("Adam", "Eve", 1L);
+        Wallet adam = new Wallet();
+        Wallet eve = new Wallet();
+        var transaction = new Transaction(adam.getAddress(), eve.getAddress(), 1L);
+        var signedTransaction = adam.sign(transaction);
 
         Block genesis = new Block(
                 0,
                 System.currentTimeMillis(),
-                List.of(t),
+                List.of(signedTransaction),
                 GENESIS_PREVIOUS_HASH,
                 0,
                 null
@@ -31,6 +35,11 @@ public final class Blockchain {
     }
 
     public Block addBlock(List<Transaction> transactions) {
+        Objects.requireNonNull(transactions);
+
+        if (!areTransactionsValid(transactions))
+            throw new IllegalArgumentException("There is an invalid transaction in the block.");
+
         Block previous = blocks.getLast();
 
         Block candidate = new Block(
@@ -77,6 +86,9 @@ public final class Blockchain {
             if (!ProofOfWork.isValid(current, difficulty))
                 return false;
 
+            if (!areTransactionsValid(current.transactions()))
+                return false;
+
             if (i > 0) {
                 Block previous = candidateBlocks.get(i - 1);
 
@@ -86,5 +98,9 @@ public final class Blockchain {
         }
 
         return true;
+    }
+
+    private static boolean areTransactionsValid(List<Transaction> transactions) {
+        return transactions.stream().allMatch(Transaction::verifySignature);
     }
 }

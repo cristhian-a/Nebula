@@ -3,6 +3,7 @@ package app.nebula;
 import app.nebula.blockchain.Block;
 import app.nebula.blockchain.Blockchain;
 import app.nebula.blockchain.Transaction;
+import app.nebula.blockchain.Wallet;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,13 +13,20 @@ import java.util.List;
 public class Main {
 
     static void main() {
-        Blockchain blockchain = new Blockchain(7);
+        var alice = new Wallet();
+        var bob = new Wallet();
+        var carol = new Wallet();
+        var joe = new Wallet();
+        var jannet = new Wallet();
+        var will = new Wallet();
 
-        var t1 = new Transaction("Alice", "Bob", 10);
-        var t2 = new Transaction("Bob", "Carol", 3);
+        Blockchain blockchain = new Blockchain(1);
 
-        var t3 = new Transaction("Joe", "Jannet", 5);
-        var t4 = new Transaction("Will", "Jannet", 4);
+        var t1 = alice.sign(new Transaction(alice.getAddress(), bob.getAddress(), 10));
+        var t2 = bob.sign(new Transaction(bob.getAddress(), carol.getAddress(), 3));
+
+        var t3 = joe.sign(new Transaction(joe.getAddress(), jannet.getAddress(), 5));
+        var t4 = will.sign(new Transaction(will.getAddress(), jannet.getAddress(), 4));
 
         var block1 = blockchain.addBlock(List.of(t1, t2));
         printBlock(block1);
@@ -28,7 +36,7 @@ public class Main {
         IO.println();
 
         for (Block block : blockchain.getBlocks()) {
-            IO.println(block);
+            printBlock(block);
             IO.println();
         }
 

@@ -62,5 +62,15 @@ public final class Hashing {
 
         output.writeLong(transaction.amount());
         output.writeLong(transaction.timestamp());
+
+        byte[] publicKeyBytes = transaction.senderPublicKey() == null ? new byte[0]
+                : transaction.senderPublicKey().getEncoded();
+        output.writeInt(publicKeyBytes.length);
+        output.write(publicKeyBytes);
+
+        byte[] signatureBytes = transaction.signature() == null ? new byte[0]
+                : transaction.signature();
+        output.writeInt(signatureBytes.length);
+        output.write(signatureBytes);
     }
 }
