@@ -1,25 +1,31 @@
 package app.nebula.blockchain;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import app.nebula.rule.MonetaryPolicy;
+
+import java.util.*;
 
 public final class Blockchain {
 
     private static final String GENESIS_PREVIOUS_HASH = "0";
 
     private final List<Block> blocks = new ArrayList<>();
+    private final Map<String, Long> initialBalances;
     private final int difficulty;
 
     public Blockchain(int difficulty) {
+        this(difficulty, new HashMap<>());
+    }
+
+    public Blockchain(int difficulty, Map<String, Long> initialBalances) {
+        Objects.requireNonNull(initialBalances, "Initial balances cannot be null.");
+
         if (difficulty < 0 || difficulty > 64)
             throw new IllegalArgumentException("Invalid difficulty");
 
         this.difficulty = difficulty;
         Wallet adam = new Wallet();
         Wallet eve = new Wallet();
-        var transaction = new Transaction(adam.getAddress(), eve.getAddress(), 1L);
+        var transaction = new Transaction(adam.getAddress(), eve.getAddress(), MonetaryPolicy.INITIAL_SUPPLY);
         var signedTransaction = adam.sign(transaction);
 
         Block genesis = new Block(
@@ -32,13 +38,22 @@ public final class Blockchain {
         );
 
         blocks.add(ProofOfWork.mine(genesis, difficulty));
+
+        var balances = new HashMap<>(initialBalances);
+        balances.put(adam.getAddress(), MonetaryPolicy.INITIAL_SUPPLY);
+        this.initialBalances = balances;
     }
 
     public Block addBlock(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
 
-        if (!areTransactionsValid(transactions))
+        if (anyInvalid(transactions))
             throw new IllegalArgumentException("There is an invalid transaction in the block.");
+
+        LedgerState candidateState = buildLedgerState();
+        for (var transaction : transactions) {
+            candidateState.apply(transaction);
+        }
 
         Block previous = blocks.getLast();
 
@@ -61,8 +76,22 @@ public final class Blockchain {
         return Collections.unmodifiableList(blocks);
     }
 
+    public LedgerState buildLedgerState() {
+        LedgerState ledger = new LedgerState(initialBalances);
+        blocks.forEach(b -> b.transactions().forEach(ledger::apply));
+        return ledger;
+    }
+
     public boolean isValid() {
-        return isValid(blocks, difficulty);
+        if(!isValid(blocks, difficulty))
+            return false;
+
+        try {
+            buildLedgerState();
+            return true;
+        } catch (IllegalArgumentException | ArithmeticException ex) {
+            return false;
+        }
     }
 
     static boolean isValid(List<Block> candidateBlocks, int difficulty) {
@@ -86,7 +115,7 @@ public final class Blockchain {
             if (!ProofOfWork.isValid(current, difficulty))
                 return false;
 
-            if (!areTransactionsValid(current.transactions()))
+            if (anyInvalid(current.transactions()))
                 return false;
 
             if (i > 0) {
@@ -100,7 +129,7 @@ public final class Blockchain {
         return true;
     }
 
-    private static boolean areTransactionsValid(List<Transaction> transactions) {
-        return transactions.stream().allMatch(Transaction::verifySignature);
+    private static boolean anyInvalid(List<Transaction> transactions) {
+        return !transactions.stream().allMatch(Transaction::verifySignature);
     }
 }

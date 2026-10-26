@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,11 +23,12 @@ final class BlockchainTest {
 
     @Test
     void addingBlocksShouldPreserveValidity() {
-        Blockchain blockchain = new Blockchain(DIFFICULTY);
-
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
         Wallet carol = new Wallet();
+
+        var balances = Map.of(alice.getAddress(), 15L);
+        Blockchain blockchain = new Blockchain(DIFFICULTY, balances);
 
         blockchain.addBlock(List.of(
                 sign(alice, bob, 10, 1_000L)
@@ -63,10 +65,10 @@ final class BlockchainTest {
 
     @Test
     void modifyingTransactionWithoutUpdatingHashShouldInvalidateChain() {
-        Blockchain blockchain = new Blockchain(DIFFICULTY);
-
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
+
+        Blockchain blockchain = new Blockchain(DIFFICULTY, Map.of(alice.getAddress(), 10L));
 
         Transaction signed = sign(alice, bob, 10, 1_000L);
         blockchain.addBlock(List.of(signed));
@@ -102,11 +104,11 @@ final class BlockchainTest {
 
     @Test
     void recalculatedAndReminedBlockWithInvalidSignatureShouldBeRejected() {
-        Blockchain blockchain = new Blockchain(DIFFICULTY);
-
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
         Wallet carol = new Wallet();
+
+        Blockchain blockchain = new Blockchain(DIFFICULTY, Map.of(alice.getAddress(), 10L));
 
         Transaction signed = sign(alice, bob, 10, 1_000L);
         blockchain.addBlock(List.of(signed));
@@ -253,6 +255,32 @@ final class BlockchainTest {
         );
 
         assertFalse(ProofOfWork.isValid(recalculated, 64));
+    }
+
+    @Test
+    void reconstructsBalancesByReplayingTransactionsInBlockOrder() {
+        Wallet adam = new Wallet();
+        Wallet eve = new Wallet();
+
+        var initialBalance = Map.of(adam.getAddress(), 100L);
+        Blockchain blockchain = new Blockchain(DIFFICULTY, initialBalance);
+
+        Transaction first = adam.sign(
+                new Transaction(adam.getAddress(), eve.getAddress(), 30L)
+        );
+
+        Transaction second = eve.sign(
+                new Transaction(eve.getAddress(), adam.getAddress(), 10L)
+        );
+
+        // Adam's initial balance is supplied separately.
+        blockchain.addBlock(List.of(first));
+        blockchain.addBlock(List.of(second));
+
+        LedgerState state = blockchain.buildLedgerState();
+
+        assertEquals(80L, state.getBalance(adam.getAddress()));
+        assertEquals(20L, state.getBalance(eve.getAddress()));
     }
 
     private static Transaction sign(
