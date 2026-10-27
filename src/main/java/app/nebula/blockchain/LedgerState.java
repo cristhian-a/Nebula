@@ -8,22 +8,6 @@ public final class LedgerState {
 
     private final Map<String, Long> balances = new HashMap<>();
 
-    public LedgerState(Map<String, Long> initialBalances) {
-        if (initialBalances != null) {
-            initialBalances.forEach((address, balance) -> {
-                Objects.requireNonNull(address);
-                Objects.requireNonNull(balance);
-
-                if (address.isBlank())
-                    throw new IllegalArgumentException("Addresses cannot be null.");
-                if (balance < 0)
-                    throw new IllegalArgumentException("Balance cannot be negative.");
-                if (balance > 0)
-                    balances.put(address, balance);
-            });
-        }
-    }
-
     public long getBalance(String address) {
         Objects.requireNonNull(address);
         return balances.getOrDefault(address, 0L);
@@ -60,5 +44,24 @@ public final class LedgerState {
             balances.put(sender, senderBalance);
 
         balances.put(recipient, recipientBalance);
+    }
+
+    public void applyReward(MiningReward reward) {
+        Objects.requireNonNull(reward);
+
+        long currentBalance = getBalance(reward.recipient());
+        long newBalance = Math.addExact(currentBalance, reward.amount());
+
+        balances.put(reward.recipient(), newBalance);
+    }
+
+    public long getTotalSupplyCents() {
+        long totalSupply = 0;
+
+        for (long v : balances.values()) {
+            totalSupply = Math.addExact(totalSupply, v);
+        }
+
+        return totalSupply;
     }
 }

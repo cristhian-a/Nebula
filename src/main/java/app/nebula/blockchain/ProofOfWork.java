@@ -19,7 +19,8 @@ public final class ProofOfWork {
                     block.transactions(),
                     block.previousHash(),
                     nonce,
-                    null
+                    null,
+                    block.miningReward()
             );
 
             if (candidate.hash().startsWith(target))

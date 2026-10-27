@@ -1,11 +1,9 @@
-
 package app.nebula.blockchain;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,24 +20,52 @@ final class BlockchainTest {
     }
 
     @Test
+    void newBlockchainShouldStartWithZeroSupplyAndRewardlessGenesis() {
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+
+        assertEquals(1, blockchain.getBlocks().size());
+
+        Block genesis = blockchain.getBlocks().getFirst();
+        assertEquals(0, genesis.index());
+        assertTrue(genesis.transactions().isEmpty());
+        assertNull(genesis.miningReward());
+
+        LedgerState state = blockchain.buildLedger();
+        assertEquals(0L, state.getTotalSupplyCents());
+        assertTrue(blockchain.isValid());
+    }
+
+    @Test
     void addingBlocksShouldPreserveValidity() {
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
         Wallet carol = new Wallet();
 
-        var balances = Map.of(alice.getAddress(), 15L);
-        Blockchain blockchain = new Blockchain(DIFFICULTY, balances);
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
 
-        blockchain.addBlock(List.of(
-                sign(alice, bob, 10, 1_000L)
-        ));
+        // Alice starts with zero coins and mines her first reward.
+        blockchain.addBlock(List.of(), alice.getAddress());
 
-        blockchain.addBlock(List.of(
-                sign(bob, carol, 3, 2_000L),
-                sign(alice, carol, 5, 3_000L)
-        ));
+        assertEquals(
+                app.nebula.rule.MonetaryPolicy.BOOTSTRAP_REWARD_CENTS,
+                blockchain.buildLedger().getBalance(alice.getAddress())
+        );
 
-        assertEquals(3, blockchain.getBlocks().size());
+        // Alice funds Bob; Bob can then spend part of what he received.
+        blockchain.addBlock(
+                List.of(
+                        sign(alice, bob, 10, 1_000L),
+                        sign(bob, carol, 3, 2_000L)
+                ),
+                carol.getAddress()
+        );
+
+        blockchain.addBlock(
+                List.of(sign(alice, carol, 5, 3_000L)),
+                carol.getAddress()
+        );
+
+        assertEquals(4, blockchain.getBlocks().size());
         assertTrue(blockchain.isValid());
     }
 
@@ -49,6 +75,7 @@ final class BlockchainTest {
 
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
+        Wallet miner = new Wallet();
 
         Transaction unsigned = unsignedTransaction(
                 alice.getAddress(), bob.getAddress(), 10, 1_000L
@@ -56,7 +83,7 @@ final class BlockchainTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> blockchain.addBlock(List.of(unsigned))
+                () -> blockchain.addBlock(List.of(unsigned), miner.getAddress())
         );
 
         assertEquals(1, blockchain.getBlocks().size());
@@ -68,15 +95,15 @@ final class BlockchainTest {
         Wallet alice = new Wallet();
         Wallet bob = new Wallet();
 
-        Blockchain blockchain = new Blockchain(DIFFICULTY, Map.of(alice.getAddress(), 10L));
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+
+        blockchain.addBlock(List.of(), alice.getAddress());
 
         Transaction signed = sign(alice, bob, 10, 1_000L);
-        blockchain.addBlock(List.of(signed));
+        blockchain.addBlock(List.of(signed), alice.getAddress());
 
-        List<Block> tamperedBlocks =
-                new ArrayList<>(blockchain.getBlocks());
-
-        Block original = tamperedBlocks.get(1);
+        List<Block> tamperedBlocks = new ArrayList<>(blockchain.getBlocks());
+        Block original = tamperedBlocks.get(2);
 
         Transaction tamperedTransaction = new Transaction(
                 signed.sender(),
@@ -93,12 +120,15 @@ final class BlockchainTest {
                 List.of(tamperedTransaction),
                 original.previousHash(),
                 original.nonce(),
-                original.hash()
+                original.hash(),
+                original.miningReward()
         );
 
-        tamperedBlocks.set(1, tampered);
+        tamperedBlocks.set(2, tampered);
 
-        assertFalse(Blockchain.isValid(tamperedBlocks, DIFFICULTY));
+        Blockchain tamperedBlockchain = new Blockchain(tamperedBlocks, DIFFICULTY);
+
+        assertFalse(tamperedBlockchain.isValid());
         assertTrue(blockchain.isValid());
     }
 
@@ -108,17 +138,17 @@ final class BlockchainTest {
         Wallet bob = new Wallet();
         Wallet carol = new Wallet();
 
-        Blockchain blockchain = new Blockchain(DIFFICULTY, Map.of(alice.getAddress(), 10L));
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+
+        blockchain.addBlock(List.of(), alice.getAddress());
 
         Transaction signed = sign(alice, bob, 10, 1_000L);
-        blockchain.addBlock(List.of(signed));
+        blockchain.addBlock(List.of(signed), alice.getAddress());
 
-        List<Block> tamperedBlocks =
-                new ArrayList<>(blockchain.getBlocks());
+        List<Block> tamperedBlocks = new ArrayList<>(blockchain.getBlocks());
+        Block original = tamperedBlocks.get(2);
 
-        Block original = tamperedBlocks.get(1);
-
-        // Change the recipient but keep the original signature.
+        // Change the recipient but preserve the original signature.
         Transaction tamperedTransaction = new Transaction(
                 signed.sender(),
                 carol.getAddress(),
@@ -128,22 +158,25 @@ final class BlockchainTest {
                 signed.signature()
         );
 
-        // Recalculate the hash, then mine the modified block.
+        // Recalculate the hash and mine the modified block.
         Block candidate = new Block(
                 original.index(),
                 original.timestamp(),
                 List.of(tamperedTransaction),
                 original.previousHash(),
                 0,
-                null
+                null,
+                original.miningReward()
         );
 
         Block remined = ProofOfWork.mine(candidate, DIFFICULTY);
-        tamperedBlocks.set(1, remined);
+        tamperedBlocks.set(2, remined);
 
-        // Valid proof of work cannot make an invalid signature valid.
         assertTrue(ProofOfWork.isValid(remined, DIFFICULTY));
-        assertFalse(Blockchain.isValid(tamperedBlocks, DIFFICULTY));
+
+        Blockchain tamperedBlockchain = new Blockchain(tamperedBlocks, DIFFICULTY);
+
+        assertFalse(tamperedBlockchain.isValid());
         assertTrue(blockchain.isValid());
     }
 
@@ -206,6 +239,21 @@ final class BlockchainTest {
     }
 
     @Test
+    void changingMiningRewardShouldChangeBlockHash() {
+        MiningReward firstReward = new MiningReward("miner-one", 1_000L);
+        MiningReward differentAmount = new MiningReward("miner-one", 1_001L);
+        MiningReward differentRecipient = new MiningReward("miner-two", 1_000L);
+
+        Block original = createBlock(List.of(), firstReward);
+        Block changedAmount = createBlock(List.of(), differentAmount);
+        Block changedRecipient = createBlock(List.of(), differentRecipient);
+
+        assertNotEquals(original.hash(), changedAmount.hash());
+        assertNotEquals(original.hash(), changedRecipient.hash());
+        assertEquals(original.hash(), original.calculateHash());
+    }
+
+    @Test
     void blockShouldNotBeAffectedByChangesToOriginalTransactionList() {
         List<Transaction> transactions = new ArrayList<>();
 
@@ -251,36 +299,139 @@ final class BlockchainTest {
                 List.of(unsignedTransaction("Alice", "Bob", 999, 1_000L)),
                 original.previousHash(),
                 original.nonce(),
-                null
+                null,
+                original.miningReward()
         );
 
         assertFalse(ProofOfWork.isValid(recalculated, 64));
     }
 
     @Test
-    void reconstructsBalancesByReplayingTransactionsInBlockOrder() {
+    void reconstructsBalancesByReplayingTransactionsAndRewardsInBlockOrder() {
         Wallet adam = new Wallet();
         Wallet eve = new Wallet();
+        Wallet miner = new Wallet();
 
-        var initialBalance = Map.of(adam.getAddress(), 100L);
-        Blockchain blockchain = new Blockchain(DIFFICULTY, initialBalance);
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
 
+        // Adam has no coins initially. His first block creates the first coins.
+        long initialSupply = blockchain.buildLedger().getTotalSupplyCents();
+        assertEquals(0L, initialSupply);
+
+        Block firstBlock = blockchain.addBlock(List.of(), adam.getAddress());
+        long firstReward = firstBlock.miningReward().amount();
+
+        assertEquals(
+                app.nebula.rule.MonetaryPolicy.BOOTSTRAP_REWARD_CENTS,
+                firstReward
+        );
+
+        // Adam transfers 30 cents to Eve.
         Transaction first = adam.sign(
                 new Transaction(adam.getAddress(), eve.getAddress(), 30L)
         );
+        Block secondBlock = blockchain.addBlock(List.of(first), miner.getAddress());
 
+        // Eve sends 10 cents back to Adam.
         Transaction second = eve.sign(
                 new Transaction(eve.getAddress(), adam.getAddress(), 10L)
         );
+        Block thirdBlock = blockchain.addBlock(List.of(second), miner.getAddress());
 
-        // Adam's initial balance is supplied separately.
-        blockchain.addBlock(List.of(first));
-        blockchain.addBlock(List.of(second));
+        LedgerState state = blockchain.buildLedger();
 
-        LedgerState state = blockchain.buildLedgerState();
+        long secondReward = secondBlock.miningReward().amount();
+        long thirdReward = thirdBlock.miningReward().amount();
 
-        assertEquals(80L, state.getBalance(adam.getAddress()));
+        assertEquals(firstReward - 30L + 10L,
+                state.getBalance(adam.getAddress()));
         assertEquals(20L, state.getBalance(eve.getAddress()));
+        assertEquals(secondReward + thirdReward,
+                state.getBalance(miner.getAddress()));
+
+        assertEquals(
+                firstReward + secondReward + thirdReward,
+                state.getTotalSupplyCents()
+        );
+
+        assertTrue(blockchain.isValid());
+    }
+
+    @Test
+    void newBlockShouldPayThePolicyRewardToTheMiner() {
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+        Wallet miner = new Wallet();
+
+        long initialSupply = blockchain.buildLedger().getTotalSupplyCents();
+        long expectedReward = app.nebula.rule.MonetaryPolicy.calculateReward(initialSupply);
+
+        Block block = blockchain.addBlock(List.of(), miner.getAddress());
+
+        assertNotNull(block.miningReward());
+        assertEquals(miner.getAddress(), block.miningReward().recipient());
+        assertEquals(expectedReward, block.miningReward().amount());
+
+        LedgerState state = blockchain.buildLedger();
+        assertEquals(expectedReward, state.getBalance(miner.getAddress()));
+        assertEquals(initialSupply + expectedReward, state.getTotalSupplyCents());
+        assertTrue(blockchain.isValid());
+    }
+
+    @Test
+    void rejectsBlockWithIncorrectMiningRewardEvenWhenProofOfWorkIsValid() {
+        Wallet miner = new Wallet();
+        Blockchain blockchain = new Blockchain(DIFFICULTY);
+
+        // Mine the first block to establish a legitimate reward.
+        blockchain.addBlock(List.of(), miner.getAddress());
+
+        assertTrue(blockchain.isValid());
+
+        Block originalBlock = blockchain.getBlocks().getLast();
+
+        // Create a block with an incorrect reward.
+        MiningReward incorrectReward = new MiningReward(
+                miner.getAddress(),
+                originalBlock.miningReward().amount() + 1L
+        );
+
+        Block tamperedBlock = new Block(
+                originalBlock.index(),
+                originalBlock.timestamp(),
+                originalBlock.transactions(),
+                originalBlock.previousHash(),
+                0L,
+                null,
+                incorrectReward
+        );
+
+        // Re-mine it so that the block has valid proof of work.
+        Block minedTamperedBlock = ProofOfWork.mine(
+                tamperedBlock,
+                DIFFICULTY
+        );
+
+        assertTrue(
+                ProofOfWork.isValid(minedTamperedBlock, DIFFICULTY),
+                "The tampered block should have valid proof of work"
+        );
+
+        // Replace the original block with the tampered one.
+        List<Block> tamperedBlocks = new java.util.ArrayList<>(
+                blockchain.getBlocks()
+        );
+
+        tamperedBlocks.set(
+                tamperedBlocks.size() - 1,
+                minedTamperedBlock
+        );
+
+        Blockchain tamperedBlockchain = new Blockchain(tamperedBlocks, DIFFICULTY);
+
+        assertFalse(
+                tamperedBlockchain.isValid(),
+                "A block with an incorrect reward must be rejected"
+        );
     }
 
     private static Transaction sign(
@@ -314,13 +465,21 @@ final class BlockchainTest {
     }
 
     private static Block createBlock(List<Transaction> transactions) {
+        return createBlock(transactions, null);
+    }
+
+    private static Block createBlock(
+            List<Transaction> transactions,
+            MiningReward miningReward
+    ) {
         return new Block(
                 1,
                 10_000L,
                 transactions,
                 "previous-hash",
                 0,
-                null
+                null,
+                miningReward
         );
     }
 }

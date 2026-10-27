@@ -14,7 +14,14 @@ public final class Hashing {
     private Hashing() {
     }
 
-    public static String calculateHash(int index, long timestamp, List<Transaction> transactions, String previousHash, long nonce) {
+    public static String calculateHash(
+            int index,
+            long timestamp,
+            List<Transaction> transactions,
+            String previousHash,
+            long nonce,
+            MiningReward miningReward
+    ) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -33,6 +40,14 @@ public final class Hashing {
                 output.write(previousHashBytes);
 
                 output.writeLong(nonce);
+
+                output.writeBoolean(miningReward != null);
+                if (miningReward != null) {
+                    byte[] rewardRecipientBytes = miningReward.recipient().getBytes(StandardCharsets.UTF_8);
+                    output.writeInt(rewardRecipientBytes.length);
+                    output.write(rewardRecipientBytes);
+                    output.writeLong(miningReward.amount());
+                }
             }
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
