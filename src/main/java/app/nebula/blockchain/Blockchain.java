@@ -21,7 +21,7 @@ public final class Blockchain {
         blocks.add(ProofOfWork.mine(genesis, difficulty));
     }
 
-    public Blockchain(List<Block> blocks, int difficulty) {
+    Blockchain(List<Block> blocks, int difficulty) {
         Objects.requireNonNull(blocks);
         if (difficulty < 0 || difficulty > 64) throw new IllegalArgumentException("Invalid difficulty");
 

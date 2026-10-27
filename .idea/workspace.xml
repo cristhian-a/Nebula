@@ -5,19 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a3d0c3f-a8ff-4547-a45d-726646b72dac" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/MiningReward.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/app/nebula/rule/MonetaryPolicyTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Block.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Blockchain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Blockchain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Hashing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Hashing.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/LedgerState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/LedgerState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/ProofOfWork.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/ProofOfWork.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/rule/MonetaryPolicy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/rule/MonetaryPolicy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/BlockchainTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/BlockchainTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/LedgerStateTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/LedgerStateTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,61 +26,61 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="0.00121907280166173" />
-      <entry key="MS500" value="0.2613400250512912" />
-      <entry key="S2" value="0.7149924931808453" />
-      <entry key="S5" value="0.8744210277920361" />
-      <entry key="S10" value="0.9351048218205466" />
-      <entry key="S30" value="0.9778829058020618" />
-      <entry key="S60" value="0.989894012411088" />
-      <entry key="M2" value="1.0804550607813328" />
-      <entry key="M5" value="2.2912000284597256" />
-      <entry key="M10" value="4.212225354858554" />
-      <entry key="M15" value="5.377095918436686" />
-      <entry key="M30" value="7.751576871819822" />
-      <entry key="H1" value="15.44330717117815" />
-      <entry key="H2" value="43.838277919073576" />
-      <entry key="H4" value="128.41275881496554" />
-      <entry key="D1" value="735.6182185072005" />
-      <entry key="W1" value="1131.036882104645" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="6.394461331883861E-72" />
+      <entry key="S2" value="1.5901972254381996E-18" />
+      <entry key="S5" value="7.595920252471995E-8" />
+      <entry key="S10" value="2.756069711105289E-4" />
+      <entry key="S30" value="0.06507739423010583" />
+      <entry key="S60" value="0.25536439699791263" />
+      <entry key="M2" value="0.5487727441906587" />
+      <entry key="M5" value="1.7473396669278773" />
+      <entry key="M10" value="3.6784830821531562" />
+      <entry key="M15" value="4.912688493161318" />
+      <entry key="M30" value="7.4092761214544876" />
+      <entry key="H1" value="15.098478003135238" />
+      <entry key="H2" value="43.34608876575863" />
+      <entry key="H4" value="127.68985436847225" />
+      <entry key="D1" value="734.9263955616742" />
+      <entry key="W1" value="1130.8848636461366" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="1.0000000342338786" />
-      <entry key="MS500" value="1.0324787511402131" />
-      <entry key="S2" value="1.683482041533309" />
-      <entry key="S5" value="2.8088344421879072" />
-      <entry key="S10" value="3.6499893931276577" />
-      <entry key="S30" value="4.475600896078393" />
-      <entry key="S60" value="4.731531082298474" />
-      <entry key="M2" value="5.129346040829381" />
-      <entry key="M5" value="8.28357586217832" />
-      <entry key="M10" value="12.863520527578787" />
-      <entry key="M15" value="15.547821485550955" />
-      <entry key="M30" value="20.0275987949736" />
-      <entry key="H1" value="31.525801888767447" />
-      <entry key="H2" value="70.74798403333573" />
-      <entry key="H4" value="169.4270150128234" />
-      <entry key="D1" value="719.6827117088939" />
-      <entry key="W1" value="1042.0215828997796" />
+      <entry key="MS100" value="1.0000000000311926" />
+      <entry key="MS500" value="1.0079215584358596" />
+      <entry key="S2" value="1.2983339357579304" />
+      <entry key="S5" value="1.616426406729723" />
+      <entry key="S10" value="1.7862038938142322" />
+      <entry key="S30" value="2.2203772941610294" />
+      <entry key="S60" value="3.1810838477431935" />
+      <entry key="M2" value="4.585283322680915" />
+      <entry key="M5" value="8.30927874002083" />
+      <entry key="M10" value="13.22952595521858" />
+      <entry key="M15" value="16.2023075897945" />
+      <entry key="M30" value="21.14185995367618" />
+      <entry key="H1" value="32.821199575670825" />
+      <entry key="H2" value="71.95333336518276" />
+      <entry key="H4" value="170.4730512935367" />
+      <entry key="D1" value="721.0058475462573" />
+      <entry key="W1" value="1043.881524656594" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.011171648192710684" />
-      <entry key="MS500" value="0.5509790775510474" />
-      <entry key="S2" value="1.884534034802705" />
-      <entry key="S5" value="3.29693314165293" />
-      <entry key="S10" value="4.324910500366241" />
-      <entry key="S30" value="5.344813734526414" />
-      <entry key="S60" value="5.663692123528969" />
-      <entry key="M2" value="6.178290872762549" />
-      <entry key="M5" value="10.553241800318393" />
-      <entry key="M10" value="17.05830279974292" />
-      <entry key="M15" value="20.910636440073105" />
-      <entry key="M30" value="27.769558777841397" />
-      <entry key="H1" value="46.96072386400067" />
-      <entry key="H2" value="114.57583984213328" />
-      <entry key="H4" value="297.82616512957617" />
-      <entry key="D1" value="1455.29058428434" />
-      <entry key="W1" value="2173.0563146721515" />
+      <entry key="MS100" value="7.864882718851158E-8" />
+      <entry key="MS500" value="0.03987517395840172" />
+      <entry key="S2" value="0.6509935442555602" />
+      <entry key="S5" value="1.2562574654309784" />
+      <entry key="S10" value="1.5820079733820818" />
+      <entry key="S30" value="2.203709741514608" />
+      <entry key="S60" value="3.3834297886309996" />
+      <entry key="M2" value="5.0987664039486615" />
+      <entry key="M5" value="10.032427480645552" />
+      <entry key="M10" value="16.888882929126893" />
+      <entry key="M15" value="21.099350982463662" />
+      <entry key="M30" value="28.540644066801562" />
+      <entry key="H1" value="47.91082946447085" />
+      <entry key="H2" value="115.28879189567104" />
+      <entry key="H4" value="298.1492109895813" />
+      <entry key="D1" value="1455.9218798064721" />
+      <entry key="W1" value="2174.764234388038" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -102,50 +92,50 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "JUnit.BlockchainTest.addingBlocksShouldPreserveValidity.executor": "Run",
-    "JUnit.BlockchainTest.executor": "Run",
-    "JUnit.BlockchainTest.modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain.executor": "Run",
-    "JUnit.BlockchainTest.modifyingTransactionWithoutUpdatingHashShouldInvalidateChain.executor": "Run",
-    "JUnit.BlockchainTest.recalculatedAndReminedBlockWithInvalidSignatureShouldBeRejected.executor": "Run",
-    "JUnit.BlockchainTest.reconstructsBalancesByReplayingTransactionsInBlockOrder.executor": "Run",
-    "JUnit.BlockchainTest.rejectsBlockWithIncorrectMiningRewardEvenWhenProofOfWorkIsValid.executor": "Run",
-    "JUnit.BlockchainTest.shouldRejectUnsignedTransactions.executor": "Run",
-    "JUnit.LedgerStateTest.appliesValidTransactionAndUpdatesBalances.executor": "Run",
-    "JUnit.LedgerStateTest.rejectsTransactionWhenBalanceIsInsufficient.executor": "Run",
-    "JUnit.MonetaryPolicyTest.calculateRewardReturnsExpectedRewardForInitialSupply.executor": "Run",
-    "JUnit.MonetaryPolicyTest.calculateRewardReturnsZeroForZeroSupply.executor": "Run",
-    "JUnit.MonetaryPolicyTest.executor": "Run",
-    "JUnit.TransactionTest.changingAmountShouldInvalidateSignature.executor": "Run",
-    "JUnit.TransactionTest.executor": "Run",
-    "JUnit.TransactionTest.unsignedTransactionShouldNotVerify.executor": "Run",
-    "JUnit.TransactionTest.validSignatureShouldVerify.executor": "Run",
-    "JUnit.TransactionTest.walletShouldNotSignTransactionFromAnotherWallet.executor": "Run",
-    "JUnit.WalletTest.addressShouldBeHexadecimal.executor": "Run",
-    "JUnit.WalletTest.creatingWalletShouldGeneratePublicKeyAndAddress.executor": "Run",
-    "JUnit.WalletTest.differentWalletsShouldHaveDifferentAddresses.executor": "Run",
-    "JUnit.app.nebula in nebula.executor": "Run",
-    "JUnit.app.nebula.blockchain in nebula.executor": "Run",
-    "Maven.nebula [install].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/User/IdeaProjects/nebula",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.jshint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.jshint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.addingBlocksShouldPreserveValidity.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.modifyingBlockDataWithoutUpdatingHashShouldInvalidateChain.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.modifyingTransactionWithoutUpdatingHashShouldInvalidateChain.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.recalculatedAndReminedBlockWithInvalidSignatureShouldBeRejected.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.reconstructsBalancesByReplayingTransactionsInBlockOrder.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.rejectsBlockWithIncorrectMiningRewardEvenWhenProofOfWorkIsValid.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BlockchainTest.shouldRejectUnsignedTransactions.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LedgerStateTest.appliesValidTransactionAndUpdatesBalances.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LedgerStateTest.rejectsTransactionWhenBalanceIsInsufficient.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MonetaryPolicyTest.calculateRewardReturnsExpectedRewardForInitialSupply.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MonetaryPolicyTest.calculateRewardReturnsZeroForZeroSupply.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.MonetaryPolicyTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TransactionTest.changingAmountShouldInvalidateSignature.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TransactionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TransactionTest.unsignedTransactionShouldNotVerify.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TransactionTest.validSignatureShouldVerify.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TransactionTest.walletShouldNotSignTransactionFromAnotherWallet.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.WalletTest.addressShouldBeHexadecimal.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.WalletTest.creatingWalletShouldGeneratePublicKeyAndAddress.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.WalletTest.differentWalletsShouldHaveDifferentAddresses.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.app.nebula in nebula.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.app.nebula.blockchain in nebula.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.nebula [install].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/User/IdeaProjects/nebula&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="app.nebula.Main" />
