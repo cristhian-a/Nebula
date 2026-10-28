@@ -4,243 +4,480 @@ package app.nebula;
 import app.nebula.blockchain.Block;
 import app.nebula.blockchain.Blockchain;
 import app.nebula.blockchain.LedgerState;
+import app.nebula.blockchain.Miner;
 import app.nebula.blockchain.Transaction;
+import app.nebula.blockchain.TransactionPool;
 import app.nebula.blockchain.Wallet;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 public class Main {
 
-    private static final int DIFFICULTY = 4;
+    private static final int DIFFICULTY = 5;
+
+    private static final int MAX_PARTICIPANTS = 25;
+    private static final int MAX_RECENT_EVENTS = 8;
+
+    private static final long MIN_TRANSACTION_CENTS = 100L;
+    private static final long MAX_TRANSACTION_CENTS = 2_000L;
+
+    private static final int NEWCOMER_CHANCE_PERCENT = 12;
+    private static final int TRANSACTION_CHANCE_PERCENT = 55;
+    private static final int NEWCOMER_FUNDING_CHANCE_PERCENT = 70;
+
+    private static final long MIN_FUNDING_CENTS = 500L;
+    private static final long MAX_FUNDING_CENTS = 2_000L;
+
+    private static final long LOOP_DELAY_MILLIS = 200L;
+
+    private static final Random RANDOM = new Random();
+
+    private static final Map<String, Wallet> ACCOUNTS =
+            new LinkedHashMap<>();
+
+    private static final Deque<String> RECENT_EVENTS =
+            new ArrayDeque<>();
+
+    private static int nextParticipantId = 1;
+
+    private static boolean interactiveConsole;
 
     static void main() {
-        Wallet miner = new Wallet();
         Blockchain blockchain = new Blockchain(DIFFICULTY);
+        TransactionPool transactionPool = new TransactionPool();
 
-        IO.println("========================================");
-        IO.println("             NEBULA BLOCKCHAIN");
-        IO.println("========================================");
-        IO.println("Difficulty: " + DIFFICULTY);
-        IO.println("Initial supply: 0.00 coins");
-        IO.println("Miner initial balance: 0.00 coins");
-        IO.println();
+        Wallet minerWallet = new Wallet();
 
-        // Phase 1: Mine without any initial supply or transactions.
-        IO.println("PHASE 1 - BOOTSTRAP MINING");
-        IO.println("Mining the first block with an empty ledger...");
+        ACCOUNTS.put("Miner", minerWallet);
 
-        Block block1 = blockchain.addBlock(
-                List.of(),
-                miner.getAddress()
+        Miner miner = new Miner(
+                blockchain,
+                transactionPool,
+                minerWallet.getAddress()
         );
 
-        printBlock(block1);
-        printSupply(blockchain);
+        interactiveConsole = System.console() != null;
 
-        IO.println("Miner balance after first block: "
-                + formatCoins(blockchain.buildLedger()
-                .getBalance(miner.getAddress()))
-                + " coins");
+        addEvent("Nebula simulation initialized.");
+        addEvent("Initial supply: 0.00 coins.");
 
-        // Phase 2: Introduce wallets after mining has created coins.
-        Wallet alice = new Wallet();
-        Wallet bob = new Wallet();
-        Wallet carol = new Wallet();
-        Wallet joe = new Wallet();
-        Wallet jannet = new Wallet();
-        Wallet will = new Wallet();
+        printStartup();
 
-        Map<String, String> accounts = Map.of(
-                "Miner", miner.getAddress(),
-                "Alice", alice.getAddress(),
-                "Bob", bob.getAddress(),
-                "Carol", carol.getAddress(),
-                "Joe", joe.getAddress(),
-                "Jannet", jannet.getAddress(),
-                "Will", will.getAddress()
-        );
+        try {
+            // Bootstrap: the first mined block creates the first coins.
+            Block bootstrapBlock = miner.minePendingTransactions();
 
-        IO.println();
-        IO.println("PHASE 2 - FIRST TRANSFERS");
-        IO.println("The miner sends Alice 100.00 coins.");
+            addEvent("Bootstrap block mined: #"
+                    + bootstrapBlock.index());
 
-        Transaction t1 = miner.sign(
-                new Transaction(
-                        miner.getAddress(),
-                        alice.getAddress(),
-                        10_000L
-                )
-        );
+            addEvent("Miner received "
+                    + formatCoins(
+                    bootstrapBlock.miningReward().amount()
+            )
+                    + " coins.");
 
-        Block block2 = blockchain.addBlock(
-                List.of(t1),
-                miner.getAddress()
-        );
+            while (!Thread.currentThread().isInterrupted()) {
 
-        printBlock(block2);
+                // Mine pending transactions, or mine an empty block.
+                Block block = miner.minePendingTransactions();
 
-        IO.println();
-        IO.println("PHASE 3 - WALLET TRANSACTIONS");
-        IO.println("Alice -> Bob: 10.00 coins");
-        IO.println("Bob -> Carol: 3.00 coins");
+                addEvent("Block #" + block.index()
+                        + " mined: "
+                        + block.transactions().size()
+                        + " transaction(s), nonce "
+                        + block.nonce() + ".");
 
-        Transaction t2 = alice.sign(
-                new Transaction(
-                        alice.getAddress(),
-                        bob.getAddress(),
-                        1_000L
-                )
-        );
+                LedgerState ledger = blockchain.buildLedger();
 
-        Transaction t3 = bob.sign(
-                new Transaction(
-                        bob.getAddress(),
-                        carol.getAddress(),
-                        300L
-                )
-        );
+                // Simulate economic activity between blocks.
+                simulateNewcomer(
+                        transactionPool,
+                        ledger,
+                        minerWallet
+                );
 
-        Block block3 = blockchain.addBlock(
-                List.of(t2, t3),
-                miner.getAddress()
-        );
+                ledger = blockchain.buildLedger();
 
-        printBlock(block3);
+                simulateRandomTransaction(
+                        transactionPool,
+                        ledger
+                );
 
-        IO.println();
-        IO.println("PHASE 4 - FUNDING MORE WALLETS");
-        IO.println("Miner -> Joe: 20.00 coins");
-        IO.println("Miner -> Will: 20.00 coins");
+                printDashboard(
+                        blockchain,
+                        transactionPool,
+                        minerWallet
+                );
 
-        Transaction t4 = miner.sign(
-                new Transaction(
-                        miner.getAddress(),
-                        joe.getAddress(),
-                        2_000L
-                )
-        );
+                Thread.sleep(LOOP_DELAY_MILLIS);
+            }
 
-        Transaction t5 = miner.sign(
-                new Transaction(
-                        miner.getAddress(),
-                        will.getAddress(),
-                        2_000L
-                )
-        );
-
-        Block block4 = blockchain.addBlock(
-                List.of(t4, t5),
-                miner.getAddress()
-        );
-
-        printBlock(block4);
-
-        IO.println();
-        IO.println("PHASE 5 - MORE TRANSACTIONS");
-        IO.println("Joe -> Jannet: 5.00 coins");
-        IO.println("Will -> Jannet: 4.00 coins");
-
-        Transaction t6 = joe.sign(
-                new Transaction(
-                        joe.getAddress(),
-                        jannet.getAddress(),
-                        500L
-                )
-        );
-
-        Transaction t7 = will.sign(
-                new Transaction(
-                        will.getAddress(),
-                        jannet.getAddress(),
-                        400L
-                )
-        );
-
-        Block block5 = blockchain.addBlock(
-                List.of(t6, t7),
-                miner.getAddress()
-        );
-
-        printBlock(block5);
-
-        // Final report.
-        IO.println();
-        IO.println("========================================");
-        IO.println("             BLOCKCHAIN");
-        IO.println("========================================");
-
-        for (Block block : blockchain.getBlocks()) {
-            printBlock(block);
-            IO.println();
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
         }
-
-        LedgerState finalState = blockchain.buildLedger();
-
-        IO.println("========================================");
-        IO.println("            FINAL BALANCES");
-        IO.println("========================================");
-
-        printBalances(finalState, accounts);
-
-        IO.println();
-        IO.println("Total supply: "
-                + formatCoins(finalState.getTotalSupplyCents())
-                + " coins");
-
-        IO.println("Blockchain valid: " + blockchain.isValid());
     }
 
-    private static void printBlock(Block block) {
-        LocalDateTime minedAt = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(block.timestamp()),
-                ZoneId.systemDefault()
+    private static void printStartup() {
+        IO.println("============================================");
+        IO.println("           NEBULA BLOCKCHAIN");
+        IO.println("           LIVE SIMULATION");
+        IO.println("============================================");
+        IO.println("Difficulty: " + DIFFICULTY);
+        IO.println("Initial supply: 0.00 coins");
+        IO.println("Initial participants: 1 (Miner)");
+        IO.println("Maximum participants: " + MAX_PARTICIPANTS);
+        IO.println("Stop with Ctrl+C.");
+        IO.println();
+
+        if (interactiveConsole) {
+            IO.println("Live console refresh enabled.");
+        } else {
+            IO.println("Console clearing unavailable; "
+                    + "printing successive snapshots.");
+        }
+
+        IO.println();
+        IO.println("Starting bootstrap mining...");
+    }
+
+    private static void simulateNewcomer(
+            TransactionPool pool,
+            LedgerState ledger,
+            Wallet minerWallet
+    ) {
+        if (ACCOUNTS.size() >= MAX_PARTICIPANTS) {
+            return;
+        }
+
+        if (RANDOM.nextInt(100) >= NEWCOMER_CHANCE_PERCENT) {
+            return;
+        }
+
+        String name = "User-" + nextParticipantId++;
+        Wallet wallet = new Wallet();
+
+        ACCOUNTS.put(name, wallet);
+
+        addEvent(name + " joined Nebula.");
+
+        if (RANDOM.nextInt(100)
+                >= NEWCOMER_FUNDING_CHANCE_PERCENT) {
+            addEvent(name + " joined without initial funds.");
+            return;
+        }
+
+        // Only one unconfirmed outgoing transaction per sender.
+        if (hasPendingOutgoing(pool, minerWallet.getAddress())) {
+            addEvent(name + " is waiting for a funding transfer.");
+            return;
+        }
+
+        long minerBalance = ledger.getBalance(
+                minerWallet.getAddress()
         );
 
-        IO.println("----------------------------------------");
-        IO.println("Block #" + block.index());
-        IO.println("Timestamp: " + minedAt);
-        IO.println("Previous hash: " + block.previousHash());
-        IO.println("Hash: " + block.hash());
-        IO.println("Nonce: " + block.nonce());
-        IO.println("Transactions: " + block.transactions().size());
+        if (minerBalance < MIN_FUNDING_CENTS) {
+            addEvent(name + " joined; miner cannot fund them yet.");
+            return;
+        }
 
-        for (Transaction transaction : block.transactions()) {
-            IO.println("  " + shortAddress(transaction.sender())
-                    + " -> " + shortAddress(transaction.recipient())
-                    + " | " + formatCoins(transaction.amount())
+        long maximum = Math.min(
+                MAX_FUNDING_CENTS,
+                minerBalance
+        );
+
+        long amount = randomAmount(
+                MIN_FUNDING_CENTS,
+                maximum
+        );
+
+        Transaction transaction = minerWallet.sign(
+                new Transaction(
+                        minerWallet.getAddress(),
+                        wallet.getAddress(),
+                        amount
+                )
+        );
+
+        try {
+            if (pool.add(transaction, ledger)) {
+                addEvent("Miner submitted "
+                        + formatCoins(amount)
+                        + " coins for " + name + ".");
+            }
+        } catch (IllegalArgumentException exception) {
+            addEvent("Funding for " + name
+                    + " was rejected: "
+                    + exception.getMessage());
+        }
+    }
+
+    private static void simulateRandomTransaction(
+            TransactionPool pool,
+            LedgerState ledger
+    ) {
+        if (RANDOM.nextInt(100)
+                >= TRANSACTION_CHANCE_PERCENT) {
+            return;
+        }
+
+        List<String> eligibleSenders = new ArrayList<>();
+
+        for (Map.Entry<String, Wallet> entry
+                : ACCOUNTS.entrySet()) {
+
+            Wallet wallet = entry.getValue();
+
+            long balance = ledger.getBalance(
+                    wallet.getAddress()
+            );
+
+            if (balance >= MIN_TRANSACTION_CENTS
+                    && !hasPendingOutgoing(
+                    pool,
+                    wallet.getAddress()
+            )) {
+                eligibleSenders.add(entry.getKey());
+            }
+        }
+
+        if (eligibleSenders.isEmpty()) {
+            return;
+        }
+
+        String senderName = eligibleSenders.get(
+                RANDOM.nextInt(eligibleSenders.size())
+        );
+
+        Wallet sender = ACCOUNTS.get(senderName);
+
+        List<String> possibleRecipients = new ArrayList<>(
+                ACCOUNTS.keySet()
+        );
+
+        possibleRecipients.remove(senderName);
+
+        if (possibleRecipients.isEmpty()) {
+            return;
+        }
+
+        String recipientName = possibleRecipients.get(
+                RANDOM.nextInt(possibleRecipients.size())
+        );
+
+        Wallet recipient = ACCOUNTS.get(recipientName);
+
+        long balance = ledger.getBalance(
+                sender.getAddress()
+        );
+
+        long maximum = Math.min(
+                MAX_TRANSACTION_CENTS,
+                balance
+        );
+
+        long amount = randomAmount(
+                MIN_TRANSACTION_CENTS,
+                maximum
+        );
+
+        Transaction transaction = sender.sign(
+                new Transaction(
+                        sender.getAddress(),
+                        recipient.getAddress(),
+                        amount
+                )
+        );
+
+        try {
+            if (pool.add(transaction, ledger)) {
+                addEvent(senderName + " -> "
+                        + recipientName + ": "
+                        + formatCoins(amount)
+                        + " coins submitted.");
+            }
+        } catch (IllegalArgumentException exception) {
+            addEvent("Transaction rejected: "
+                    + senderName + " -> "
+                    + recipientName + ".");
+        }
+    }
+
+    private static boolean hasPendingOutgoing(
+            TransactionPool pool,
+            String address
+    ) {
+        return pool.getTransactions()
+                .stream()
+                .anyMatch(transaction ->
+                        transaction.sender().equals(address));
+    }
+
+    private static long randomAmount(
+            long minimum,
+            long maximum
+    ) {
+        if (maximum <= minimum) {
+            return minimum;
+        }
+
+        return RANDOM.nextLong(minimum, maximum + 1);
+    }
+
+    private static void printDashboard(
+            Blockchain blockchain,
+            TransactionPool pool,
+            Wallet minerWallet
+    ) {
+        if (interactiveConsole) {
+            System.out.print("\u001B[H\u001B[2J");
+            System.out.flush();
+        }
+
+        LedgerState ledger = blockchain.buildLedger();
+
+        List<Block> blocks = blockchain.getBlocks();
+        Block latestBlock = blocks.getLast();
+
+        IO.println("==================================================");
+        IO.println("              NEBULA BLOCKCHAIN");
+        IO.println("                LIVE NETWORK");
+        IO.println("==================================================");
+
+        IO.println("Chain height:       " + latestBlock.index());
+        IO.println("Total blocks:       " + blocks.size());
+        IO.println("Participants:       " + ACCOUNTS.size());
+        IO.println("Pending tx:         " + pool.size());
+
+        IO.println("Total supply:       "
+                + formatCoins(ledger.getTotalSupplyCents())
+                + " coins");
+
+        IO.println("Miner balance:      "
+                + formatCoins(
+                ledger.getBalance(minerWallet.getAddress())
+        )
+                + " coins");
+
+        IO.println("Blockchain valid:   " + blockchain.isValid());
+
+        IO.println();
+        IO.println("---------------- LATEST BLOCK ----------------");
+
+        IO.println("Block:              #" + latestBlock.index());
+        IO.println("Timestamp:          "
+                + formatTimestamp(latestBlock.timestamp()));
+        IO.println("Transactions:       "
+                + latestBlock.transactions().size());
+        IO.println("Nonce:              " + latestBlock.nonce());
+        IO.println("Previous hash:      "
+                + shortAddress(latestBlock.previousHash()));
+        IO.println("Hash:               "
+                + shortAddress(latestBlock.hash()));
+
+        if (latestBlock.miningReward() != null) {
+            IO.println("Mining reward:      "
+                    + formatCoins(
+                    latestBlock.miningReward().amount()
+            )
                     + " coins");
         }
 
-        if (block.miningReward() != null) {
-            IO.println("Mining reward: "
-                    + formatCoins(block.miningReward().amount())
-                    + " coins -> "
-                    + shortAddress(block.miningReward().recipient()));
+        IO.println();
+        IO.println("---------------- RECENT EVENTS ----------------");
+
+        for (String event : RECENT_EVENTS) {
+            IO.println("  " + event);
+        }
+
+        IO.println();
+        IO.println("---------------- PENDING TX -------------------");
+
+        List<Transaction> pending = pool.getTransactions();
+
+        if (pending.isEmpty()) {
+            IO.println("  No pending transactions.");
         } else {
-            IO.println("Mining reward: none (genesis block)");
+            int displayed = 0;
+
+            for (Transaction transaction : pending) {
+                if (displayed >= 6) {
+                    IO.println("  ... and "
+                            + (pending.size() - displayed)
+                            + " more.");
+                    break;
+                }
+
+                IO.println("  "
+                        + shortAddress(transaction.sender())
+                        + " -> "
+                        + shortAddress(transaction.recipient())
+                        + " | "
+                        + formatCoins(transaction.amount())
+                        + " coins");
+
+                displayed++;
+            }
+        }
+
+        IO.println();
+        IO.println("---------------- WALLET BALANCES --------------");
+
+        int displayedAccounts = 0;
+
+        for (Map.Entry<String, Wallet> entry
+                : ACCOUNTS.entrySet()) {
+
+            if (displayedAccounts >= 12) {
+                IO.println("  ... and "
+                        + (ACCOUNTS.size() - displayedAccounts)
+                        + " more participants.");
+                break;
+            }
+
+            long balance = ledger.getBalance(
+                    entry.getValue().getAddress()
+            );
+
+            IO.println(String.format(
+                    Locale.US,
+                    "  %-12s %12s coins",
+                    entry.getKey(),
+                    formatCoins(balance)
+            ));
+
+            displayedAccounts++;
+        }
+
+        IO.println();
+        IO.println("Mining continuously. Press Ctrl+C to stop.");
+    }
+
+    private static void addEvent(String event) {
+        RECENT_EVENTS.addFirst(event);
+
+        while (RECENT_EVENTS.size() > MAX_RECENT_EVENTS) {
+            RECENT_EVENTS.removeLast();
         }
     }
 
-    private static void printSupply(Blockchain blockchain) {
-        long supply = blockchain.buildLedger().getTotalSupplyCents();
+    private static String formatTimestamp(long timestamp) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(timestamp),
+                ZoneId.systemDefault()
+        );
 
-        IO.println("Current total supply: "
-                + formatCoins(supply) + " coins");
-    }
-
-    private static void printBalances(
-            LedgerState ledger,
-            Map<String, String> accounts
-    ) {
-        accounts.forEach((name, address) ->
-                IO.println("  " + name + ": "
-                        + formatCoins(ledger.getBalance(address))
-                        + " coins"));
+        return dateTime.toString();
     }
 
     private static String formatCoins(long cents) {

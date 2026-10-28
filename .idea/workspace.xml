@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0a3d0c3f-a8ff-4547-a45d-726646b72dac" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/Miner.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/TransactionPool.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/MinerTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/app/nebula/blockchain/TransactionPoolTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/LedgerState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/blockchain/LedgerState.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/app/nebula/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,59 +27,59 @@
     <decayedCancelled>
       <entry key="MS100" value="1.0" />
       <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0000000191776341" />
-      <entry key="S5" value="1.000818687662538" />
-      <entry key="S10" value="1.0286369079085758" />
-      <entry key="S30" value="1.4044817517156098" />
-      <entry key="S60" value="2.91545033257207" />
-      <entry key="M2" value="8.322579735925874" />
-      <entry key="M5" value="23.381191078752455" />
-      <entry key="M10" value="36.35640163151843" />
-      <entry key="M15" value="42.6689701212807" />
-      <entry key="M30" value="50.43592696952668" />
-      <entry key="H1" value="56.51809509663004" />
-      <entry key="H2" value="76.02129572930025" />
-      <entry key="H4" value="144.14752404580813" />
-      <entry key="D1" value="786.1157638277832" />
-      <entry key="W1" value="1307.4685187228363" />
+      <entry key="S2" value="1.0000000006163874" />
+      <entry key="S5" value="1.0017271496195286" />
+      <entry key="S10" value="1.2823086875609748" />
+      <entry key="S30" value="10.188030327297003" />
+      <entry key="S60" value="23.76561431115748" />
+      <entry key="M2" value="39.72472467554705" />
+      <entry key="M5" value="64.03778455864563" />
+      <entry key="M10" value="81.9826980442186" />
+      <entry key="M15" value="90.53917829629574" />
+      <entry key="M30" value="101.0344600866101" />
+      <entry key="H1" value="108.69029003134067" />
+      <entry key="H2" value="128.92208424479236" />
+      <entry key="H4" value="197.2791617788553" />
+      <entry key="D1" value="839.4710514535673" />
+      <entry key="W1" value="1361.3183918213058" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="6.291904023994898E-7" />
-      <entry key="MS500" value="0.057511728164054685" />
-      <entry key="S2" value="0.48974327066347534" />
-      <entry key="S5" value="0.7751181270214977" />
-      <entry key="S10" value="1.0834232553509024" />
-      <entry key="S30" value="2.50037708004919" />
-      <entry key="S60" value="6.569590984773389" />
-      <entry key="M2" value="16.977024867272956" />
-      <entry key="M5" value="40.07028141828235" />
-      <entry key="M10" value="58.00270101691199" />
-      <entry key="M15" value="66.43413863471679" />
-      <entry key="M30" value="76.62840432951462" />
-      <entry key="H1" value="83.62896174790356" />
-      <entry key="H2" value="99.73766043390408" />
-      <entry key="H4" value="160.91469350611214" />
-      <entry key="D1" value="734.5314719836681" />
-      <entry key="W1" value="1169.400697203557" />
+      <entry key="MS100" value="3.990308728084733E-299" />
+      <entry key="MS500" value="2.0902647639570164E-60" />
+      <entry key="S2" value="1.2024850833144626E-15" />
+      <entry key="S5" value="1.1102285255825967E-6" />
+      <entry key="S10" value="0.0012966429331702787" />
+      <entry key="S30" value="0.2654684560168659" />
+      <entry key="S60" value="2.1406321268055173" />
+      <entry key="M2" value="9.690884967888428" />
+      <entry key="M5" value="32.02013318620433" />
+      <entry key="M10" value="51.84997944994551" />
+      <entry key="M15" value="61.64883712104062" />
+      <entry key="M30" value="73.81703082133352" />
+      <entry key="H1" value="82.08052019750447" />
+      <entry key="H2" value="98.80999429761422" />
+      <entry key="H4" value="160.16460653160183" />
+      <entry key="D1" value="733.9597035498298" />
+      <entry key="W1" value="1169.2706143654186" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.48296816474512455" />
-      <entry key="MS500" value="0.8768474482773863" />
-      <entry key="S2" value="1.2973838674200482" />
-      <entry key="S5" value="1.6518753956294547" />
-      <entry key="S10" value="2.0289665960163226" />
-      <entry key="S30" value="3.843942461454961" />
-      <entry key="S60" value="9.399793852498354" />
-      <entry key="M2" value="25.179583056417968" />
-      <entry key="M5" value="63.33045739762754" />
-      <entry key="M10" value="94.26976555008518" />
-      <entry key="M15" value="109.03449387634613" />
-      <entry key="M30" value="127.02454698012441" />
-      <entry key="H1" value="140.12527108417447" />
-      <entry key="H2" value="175.7457592105352" />
-      <entry key="H4" value="305.05082075673846" />
-      <entry key="D1" value="1520.637128800086" />
-      <entry key="W1" value="2476.86687238745" />
+      <entry key="MS100" value="5.726733150546282E-4" />
+      <entry key="MS500" value="0.22468878165275744" />
+      <entry key="S2" value="0.6884863712557416" />
+      <entry key="S5" value="0.8630289471475643" />
+      <entry key="S10" value="1.2107399948803503" />
+      <entry key="S30" value="10.407766086892872" />
+      <entry key="S60" value="25.845760362053436" />
+      <entry key="M2" value="49.32391145338685" />
+      <entry key="M5" value="95.94947907964828" />
+      <entry key="M10" value="133.74644650702987" />
+      <entry key="M15" value="152.11997630705278" />
+      <entry key="M30" value="174.8109209801695" />
+      <entry key="H1" value="190.7482893419125" />
+      <entry key="H2" value="227.71843106012906" />
+      <entry key="H4" value="357.4321369901538" />
+      <entry key="D1" value="1573.4206077765966" />
+      <entry key="W1" value="2530.5866560360296" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -123,6 +119,7 @@
     "JUnit.WalletTest.differentWalletsShouldHaveDifferentAddresses.executor": "Run",
     "JUnit.app.nebula in nebula.executor": "Run",
     "JUnit.app.nebula.blockchain in nebula.executor": "Run",
+    "Maven.nebula [clean,package].executor": "Run",
     "Maven.nebula [install].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -144,7 +141,12 @@
     "project.structure.side.proportion": "0.0"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.MinerTest">
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn clean package" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="app.nebula.Main" />
       <module name="nebula" />
@@ -220,10 +222,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Main" />
         <item itemvalue="JUnit.MinerTest" />
         <item itemvalue="JUnit.MinerTest.shouldMinePendingTransactionsAndRemoveThemFromPool" />
         <item itemvalue="JUnit.TransactionPoolTest" />
-        <item itemvalue="Application.Main" />
         <item itemvalue="JUnit.app.nebula in nebula" />
       </list>
     </recent_temporary>
