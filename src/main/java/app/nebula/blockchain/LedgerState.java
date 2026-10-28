@@ -6,7 +6,16 @@ import java.util.Objects;
 
 public final class LedgerState {
 
-    private final Map<String, Long> balances = new HashMap<>();
+    private final Map<String, Long> balances;
+
+    public LedgerState() {
+        this.balances = new HashMap<>();
+    }
+
+    public LedgerState(LedgerState other) {
+        Objects.requireNonNull(other);
+        this.balances = new HashMap<>(other.balances);
+    }
 
     public long getBalance(String address) {
         Objects.requireNonNull(address);
