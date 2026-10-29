@@ -4,8 +4,8 @@ final class NetworkDemo {
 
     static void main() throws Exception {
         try(
-                NetworkNode nodeA = new NetworkNode(8_001, message -> IO.println("[Node A] " + message));
-                NetworkNode nodeB = new NetworkNode(8_002, message -> IO.println("[Node B] " + message))
+                NetworkNode nodeA = new NetworkNode(8_001, message -> IO.println("[Node A] " + message), _ -> {});
+                NetworkNode nodeB = new NetworkNode(8_002, message -> IO.println("[Node B] " + message), _ -> {})
         ) {
             nodeA.start();
             nodeB.start();

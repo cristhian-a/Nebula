@@ -24,6 +24,7 @@ public final class NetworkNode implements AutoCloseable {
     private final String nodeId = UUID.randomUUID().toString();
     private final int requestedPort;
     private final Consumer<String> eventListener;
+    private final Consumer<String> messageHandler;
 
     private final Map<String, PeerConnection> peers = new ConcurrentHashMap<>();
 
@@ -32,13 +33,13 @@ public final class NetworkNode implements AutoCloseable {
     private volatile ServerSocket serverSocket;
     private volatile boolean running;
 
-    public NetworkNode(int port, Consumer<String> eventListener) {
+    public NetworkNode(int port, Consumer<String> eventListener, Consumer<String> messageHandler) {
         if (port < 0 || port > 65_535)
             throw new IllegalArgumentException("Port must be between 0 and 65535.");
 
         this.requestedPort = port;
-        this.eventListener = eventListener != null ? eventListener : message -> {
-        };
+        this.eventListener = eventListener != null ? eventListener : message -> {};
+        this.messageHandler = messageHandler != null ? messageHandler : message -> {};
     }
 
     public void start() throws IOException {
@@ -119,6 +120,17 @@ public final class NetworkNode implements AutoCloseable {
             return requestedPort;
 
         return socket.getLocalPort();
+    }
+
+    public void broadcast(String message) {
+        if (message == null || message.isBlank() || message.indexOf('\n') >= 0 || message.indexOf('\r') >= 0)
+            throw new IllegalArgumentException("Invalid network message.");
+
+        for (var peer : peers.values()) {
+            if (!peer.send(message)) {
+                log("Failed to send message to " + peer.nodeId);
+            }
+        }
     }
 
     private void acceptConnections() {
@@ -242,6 +254,12 @@ public final class NetworkNode implements AutoCloseable {
                 if (parts.length == 2) {
                     log("PONG received from " + peer.nodeId);
                 }
+                break;
+            case "TX":
+                if (parts.length == 2 && !parts[1].isBlank())
+                    messageHandler.accept(message);
+                else
+                    log("Malformed transaction message from " + peer.nodeId);
                 break;
             default:
                 log("Unknown message received from " + peer.nodeId);
